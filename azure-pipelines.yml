@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ACR_NAME: 'meuRegistry'
+  RESOURCE_GROUP: 'MyResourceGroup'
+  AKS_CLUSTER: 'MyClusterAKS'
+  IMAGE_NAME: 'taskmanagerapi'
+
+stages:
+  - stage: Build
+    displayName: 'Build e Push para ACR'
+    jobs:
+      - job: BuildAndPush
+        steps:
+          - task: Docker@2
+            displayName: "Login no ACR"
+            inputs:
+              command: "login"
+              containerRegistry: "$(ACR_NAME).azurecr.io"
+
+          - task: Docker@2
+            displayName: "Build da imagem Docker"
+            inputs:
+              repository: "$(ACR_NAME).azurecr.io/$(IMAGE_NAME)"
+              command: "build"
+              Dockerfile: "Dockerfile"
+              tags: "latest"
+
+          - task: Docker@2
+            displayName: "Push da imagem para o ACR"
+            inputs:
+              repository: "$(ACR_NAME).azurecr.io/$(IMAGE_NAME)"
+              command: "push"
+              tags: "latest"
+
+  - stage: Deploy
+    displayName: 'Deploy no AKS'
+    dependsOn: Build
+    jobs:
+      - job: DeployToAKS
+        steps:
+          - task: Kubernetes@1
+            displayName: "Aplicando deployment no AKS"
+            inputs:
+              connectionType: "Azure Resource Manager"
+              azureSubscription: "$(AZURE_SUBSCRIPTION)"
+              azureResourceGroup: "$(RESOURCE_GROUP)"
+              kubernetesCluster: "$(AKS_CLUSTER)"
+              namespace: "default"
+              command: "apply"
+              useConfigurationFile: true
+              configuration: "k8s/deployment.yaml"
