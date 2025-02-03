@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskmanagerapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskmanagerapi
+  template:
+    metadata:
+      labels:
+        app: taskmanagerapi
+    spec:
+      containers:
+        - name: taskmanagerapi
+          image: myRegistry.azurecr.io/taskmanagerapi:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:sqlserver://sqlserver:1433;databaseName=taskmanager;trustServerCertificate=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "sa"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "T@skmanager123"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskmanagerapi-service
+spec:
+  selector:
+    app: taskmanagerapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
