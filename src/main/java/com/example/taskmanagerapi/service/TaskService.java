@@ -1,5 +1,7 @@
 package com.example.taskmanagerapi.service;
 
+import com.example.taskmanagerapi.dto.TaskUpdateDTO;
+import com.example.taskmanagerapi.exception.TaskNotFoundException;
 import com.example.taskmanagerapi.model.Task;
 import com.example.taskmanagerapi.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,35 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public void deleteById(Long id) {
+    public void delete(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new TaskNotFoundException("Tarefa não encontrada com o ID: " + id);
+        }
         taskRepository.deleteById(id);
+    }
+
+    public Task updateTask(Long id, TaskUpdateDTO updatedTaskDTO) {
+        Optional<Task> existingTask = taskRepository.findById(id);
+        if (existingTask.isEmpty()) {
+            throw new TaskNotFoundException("Tarefa não encontrada com o ID: " + id);
+        }
+
+        Task task = existingTask.get();
+
+        if (updatedTaskDTO.getTitle() != null) {
+            task.setTitle(updatedTaskDTO.getTitle());
+        } else {
+            task.setTitle(existingTask.get().getTitle());
+        }
+
+        if (updatedTaskDTO.getDescription() != null) {
+            task.setDescription(updatedTaskDTO.getDescription());
+        }
+
+        if (updatedTaskDTO.getStatus() != null) {
+            task.setStatus(updatedTaskDTO.getStatus());
+        }
+
+        return taskRepository.save(task);
     }
 }
