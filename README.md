@@ -3,6 +3,12 @@
 ## 📌 Sobre o Projeto
 Task Manager API é uma aplicação Spring Boot desenvolvida para gerenciamento de tarefas. Ela expõe endpoints REST para criar, listar, atualizar e excluir tarefas, utilizando SQL Server como banco de dados.
 
+## ⬇️ Como Baixar
+
+Você pode baixar o projeto diretamente do GitHub, utilizando o seguinte link:
+
+[https://github.com/genilsonalmeida/taskmanagerapi](https://github.com/genilsonalmeida/taskmanagerapi)
+
 ## 🚀 Tecnologias Utilizadas
 
 - **Java**: 17
@@ -32,6 +38,13 @@ Antes de iniciar, instale os seguintes componentes:
 
 ### 2️⃣ Executando com Docker Compose
 
+Será necessário realizar o build do projeto, executando o comando abaixo na raiz do projeto, antes de executar o comando docker-compose.
+
+```sh
+./mvnw clean package -DskipTests
+```
+
+Após criar o artefato, o comando do docker-compose abaixo, poderá ser executado.
 ```sh
 docker-compose up -d
 ```
